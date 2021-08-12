@@ -19,8 +19,6 @@ textureManager.onLoad = () => {
 
 const textureLoader = new THREE.TextureLoader(textureManager);
 
-const birdTexture = textureLoader.load("./textures/bird.png");
-const birdcageTexture = textureLoader.load("./textures/birdcage.png");
 // const doorAlphaTexture = textureLoader.load("/textures/door/alpha.jpg");
 // const doorAmbientOcclusionTexture = textureLoader.load(
 //   "/textures/door/ambientOcclusion.jpg"
@@ -43,11 +41,11 @@ const birdcageTexture = textureLoader.load("./textures/birdcage.png");
 /**
  * Settings
  */
-const settings = {
-  rotationSpeed: 1,
-};
+// const settings = {
+//   rotationSpeed: 1,
+// };
 
-gui.add(settings, "rotationSpeed").min(0).max(150).step(1);
+// gui.add(settings, "rotationSpeed").min(0).max(150).step(1);
 
 /**
  * Base
@@ -61,31 +59,27 @@ const scene = new THREE.Scene();
 /**
  * Objects
  */
-// Bird
-const birdMaterial = new THREE.MeshBasicMaterial();
-birdMaterial.map = birdTexture;
 
-const birdPlane = new THREE.Mesh(
-  new THREE.PlaneGeometry(0.4, 0.4, 100, 100),
-  birdMaterial
+const vertices = [];
+
+for (let i = 0; i < 10; i++) {
+  const x = THREE.MathUtils.randFloatSpread(5);
+  const y = THREE.MathUtils.randFloatSpread(5);
+  // const z = THREE.MathUtils.randFloatSpread(5);
+  const z = 0;
+
+  vertices.push(x, y, z);
+}
+const geometry = new THREE.BufferGeometry();
+geometry.setAttribute(
+  "position",
+  new THREE.Float32BufferAttribute(vertices, 3)
 );
-birdPlane.position.x = 0;
-birdPlane.position.z = 0.0001;
 
-scene.add(birdPlane);
+const material = new THREE.PointsMaterial({ color: 0x888888, size: 0.1 });
 
-// Birdcage
-const birdcageMaterial = new THREE.MeshBasicMaterial();
-birdcageMaterial.map = birdcageTexture;
-
-const birdcagePlane = new THREE.Mesh(
-  new THREE.PlaneGeometry(1, 1, 100, 100),
-  birdcageMaterial
-);
-birdcagePlane.position.x = 0;
-birdcagePlane.position.z = -0.0001;
-
-scene.add(birdcagePlane);
+const points = new THREE.Points(geometry, material);
+scene.add(points);
 
 /**
  * Lights
@@ -134,7 +128,7 @@ const camera = new THREE.PerspectiveCamera(
 );
 camera.position.x = 0;
 camera.position.y = 0;
-camera.position.z = 1.5;
+camera.position.z = 5;
 scene.add(camera);
 
 // Controls
@@ -159,8 +153,6 @@ const tick = () => {
   const elapsedTime = clock.getElapsedTime();
 
   // Update objects
-  birdPlane.rotation.y = settings.rotationSpeed * elapsedTime;
-  birdcagePlane.rotation.y = settings.rotationSpeed * elapsedTime + Math.PI;
 
   // Update controls
   controls.update();
