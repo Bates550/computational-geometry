@@ -3,24 +3,25 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import * as dat from "dat.gui";
 import { Algorithm } from "./Algorithm";
+import { generateUUID } from "three/src/math/MathUtils";
 
 window.THREE = THREE;
 
 /**
  * Debug
  */
-// const gui = new dat.GUI();
+const gui = new dat.GUI();
 
 /**
  * Texture Loading
  */
 
-// const textureManager = new THREE.LoadingManager();
-// textureManager.onLoad = () => {
-//   console.log("loaded");
-// };
+const textureManager = new THREE.LoadingManager();
+textureManager.onLoad = () => {
+  console.log("loaded");
+};
 
-// const textureLoader = new THREE.TextureLoader(textureManager);
+const textureLoader = new THREE.TextureLoader(textureManager);
 
 // const doorAlphaTexture = textureLoader.load("/textures/door/alpha.jpg");
 // const doorAmbientOcclusionTexture = textureLoader.load(
@@ -44,20 +45,20 @@ window.THREE = THREE;
 /**
  * Settings
  */
-// const settings = {
-//   rotationSpeed: 1,
-// };
+const settings = {
+  rotationSpeed: 1,
+};
 
-// gui.add(settings, "rotationSpeed").min(0).max(150).step(1);
+gui.add(settings, "rotationSpeed").min(0).max(150).step(1);
 
 /**
  * Base
  */
 // Canvas
-// const canvas = document.querySelector("canvas.webgl");
+const canvas = document.querySelector("canvas.webgl");
 
 // // Scene
-// const scene = new THREE.Scene();
+const scene = new THREE.Scene();
 
 /**
  * Objects
@@ -85,76 +86,86 @@ const vertices = [
 //   vertices.push([x, y, z]);
 // }
 
-// const geometry = new THREE.BufferGeometry();
-// geometry.setAttribute(
-//   "position",
-//   new THREE.Float32BufferAttribute(vertices.flat(), 3)
-// );
+const geometry = new THREE.BufferGeometry();
+geometry.setAttribute(
+  "position",
+  new THREE.Float32BufferAttribute(vertices.flat(), 3)
+);
 
-// const material = new THREE.PointsMaterial({ color: 0x888888, size: 0.1 });
-// material.size;
+const material = new THREE.PointsMaterial({ color: 0x888888, size: 0.1 });
+material.size;
 
-// const points = new THREE.Points(geometry, material);
-// scene.add(points);
+const points = new THREE.Points(geometry, material);
+scene.add(points);
+
+// Axes Helper
+const axesHelper = new THREE.AxesHelper(5);
+scene.add(axesHelper);
 
 // /**
 //  * Lights
 //  */
 
-// /**
-//  * Sizes
-//  */
-// const sizes = {
-//   width: window.innerWidth,
-//   height: window.innerHeight,
-// };
+/**
+ * Sizes
+ */
+const sizes = {
+  width: window.innerWidth,
+  height: window.innerHeight,
+};
 
-// window.addEventListener("resize", () => {
-//   // Update sizes
-//   sizes.width = window.innerWidth;
-//   sizes.height = window.innerHeight;
+window.addEventListener("resize", () => {
+  // Update sizes
+  sizes.width = window.innerWidth;
+  sizes.height = window.innerHeight;
 
-//   // Update camera
-//   camera.aspect = sizes.width / sizes.height;
-//   camera.updateProjectionMatrix();
+  // Update camera
+  camera.aspect = sizes.width / sizes.height;
+  camera.updateProjectionMatrix();
 
-//   // Update renderer
-//   renderer.setSize(sizes.width, sizes.height);
-//   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-// });
+  // Update renderer
+  renderer.setSize(sizes.width, sizes.height);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+});
 
-// /**
-//  * Camera
-//  */
-// // Base camera
-// const camera = new THREE.PerspectiveCamera(
-//   75,
-//   sizes.width / sizes.height,
-//   0.1,
-//   100
-// );
-// camera.position.x = 0;
-// camera.position.y = 0;
-// camera.position.z = 5;
-// scene.add(camera);
+/**
+ * Camera
+ */
+// Base camera
+const camera = new THREE.PerspectiveCamera(
+  75,
+  sizes.width / sizes.height,
+  0.1,
+  100
+);
+camera.position.x = 4;
+camera.position.y = 4;
+camera.position.z = 8;
 
-// // Controls
-// const controls = new OrbitControls(camera, canvas);
-// controls.enableDamping = true;
+gui.add(camera.position, "x").min(0).max(20).step(0.1);
+gui.add(camera.position, "y").min(0).max(20).step(0.1);
+gui.add(camera.position, "z").min(0).max(20).step(0.1);
 
-// /**
-//  * Renderer
-//  */
-// const renderer = new THREE.WebGLRenderer({
-//   canvas: canvas,
-// });
-// renderer.setSize(sizes.width, sizes.height);
-// renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+scene.add(camera);
+
+// Controls
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true;
+controls.target = new THREE.Vector3(4, 4, 0);
+
+/**
+ * Renderer
+ */
+const renderer = new THREE.WebGLRenderer({
+  canvas: canvas,
+});
+renderer.setSize(sizes.width, sizes.height);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 /**
  * Animate
  */
-// const clock = new THREE.Clock();
+const clock = new THREE.Clock();
 
 /**
  * Algorithm
@@ -164,27 +175,30 @@ setTimeout(() => {
   console.log(algorithm.compute());
 }, 1000);
 
-// let lastSecond = 0;
-// const tick = () => {
-//   const elapsedTime = clock.getElapsedTime();
+/**
+ * Tick
+ */
+let lastSecond = 0;
+const tick = () => {
+  const elapsedTime = clock.getElapsedTime();
 
-//   const currentSecond = Math.trunc(elapsedTime);
-//   if (currentSecond > lastSecond) {
-//     lastSecond = currentSecond;
+  const currentSecond = Math.trunc(elapsedTime);
+  if (currentSecond > lastSecond) {
+    lastSecond = currentSecond;
 
-//     // Algorithm.next();
-//   }
+    // Algorithm.next();
+  }
 
-//   // Update objects
+  // Update objects
 
-//   // Update controls
-//   controls.update();
+  // Update controls
+  controls.update();
 
-//   // Render
-//   renderer.render(scene, camera);
+  // Render
+  renderer.render(scene, camera);
 
-//   // Call tick again on the next frame
-//   window.requestAnimationFrame(tick);
-// };
+  // Call tick again on the next frame
+  window.requestAnimationFrame(tick);
+};
 
-// tick();
+tick();

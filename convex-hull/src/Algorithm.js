@@ -46,7 +46,7 @@ export class Algorithm {
         );
 
         const checkingIsBetter = currentBestVector.cross(checkingVector) > 0;
-        debugger;
+        // debugger;
 
         if (
           new THREE.Vector2(...currentBest).equals(
