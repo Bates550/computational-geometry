@@ -30,7 +30,7 @@ export class Algorithm {
 
   // Run algorithm to next iteration
   next() {
-    return this.generator.next();
+    return this.generator.next().value;
   }
 
   // Run algorithm to completion and returns the result

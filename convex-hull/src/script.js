@@ -92,15 +92,36 @@ geometry.setAttribute(
   new THREE.Float32BufferAttribute(vertices.flat(), 3)
 );
 
-const material = new THREE.PointsMaterial({ color: 0x888888, size: 0.1 });
-material.size;
+const pointMaterial = new THREE.PointsMaterial({
+  color: 0x888888,
+  size: 0.2,
+});
 
-const points = new THREE.Points(geometry, material);
+const points = new THREE.Points(geometry, pointMaterial);
 scene.add(points);
 
 // Axes Helper
 const axesHelper = new THREE.AxesHelper(5);
 scene.add(axesHelper);
+
+// Lines
+// - red lines are already placed lines
+// - black line is the current best guess for the new line
+// - green line is the next guess
+
+// Placed Lines
+const placedLineMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 });
+const placedLineGeometry = new THREE.BufferGeometry().setFromPoints([
+  new THREE.Vector2(1, 1),
+  new THREE.Vector2(1, 4),
+]);
+const placedLine = new THREE.Line(placedLineGeometry, placedLineMaterial);
+scene.add(placedLine);
+
+const currentBestGuessLineMaterial = new THREE.LineBasicMaterial({
+  color: 0x000000,
+});
+const nextGuessLineMaterial = new THREE.LineBasicMaterial({ color: 0x00ff00 });
 
 // /**
 //  * Lights
@@ -179,17 +200,24 @@ let lastSecond = 0;
 const tick = () => {
   const elapsedTime = clock.getElapsedTime();
 
-  const currentSecond = Math.trunc(elapsedTime);
+  // Update objects
+  const currentSecond = Math.trunc(elapsedTime * 3);
   if (currentSecond > lastSecond) {
     lastSecond = currentSecond;
 
     if (!algorithm.done) {
-      console.log(algorithm.next());
-    }
-    debugger;
-  }
+      const result = algorithm.next();
 
-  // Update objects
+      const points = result.convexHull.map(
+        (point) => new THREE.Vector3(...point)
+      );
+      placedLine.geometry.setFromPoints(points);
+
+      // placedLine.geometry.attributes.position.needsUpdate = true;
+      debugger;
+      console.log(placedLine);
+    }
+  }
 
   // Update controls
   controls.update();
