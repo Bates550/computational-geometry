@@ -171,7 +171,6 @@ const clock = new THREE.Clock();
  * Algorithm
  */
 const algorithm = new Algorithm(vertices);
-algorithm.start();
 
 /**
  * Tick

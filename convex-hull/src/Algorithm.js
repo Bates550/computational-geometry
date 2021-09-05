@@ -11,7 +11,9 @@ export class Algorithm {
     // P
     this.convexHull = [];
 
-    this.generator = null;
+    // Initialize the generator
+    this.generator = this.compute();
+    this.done = false;
   }
 
   #calculateLeftMostPoint(vertices) {
@@ -24,14 +26,6 @@ export class Algorithm {
       return acc;
     }, vertices[0]);
     return leftMostPoint;
-  }
-
-  // Initialize the generator.
-  // Usage: const algorithm = new Algorithm(vertices).start();
-  start() {
-    this.generator = this.compute();
-    this.done = false;
-    return this.generator;
   }
 
   // Run algorithm to next iteration
