@@ -170,10 +170,8 @@ const clock = new THREE.Clock();
 /**
  * Algorithm
  */
-setTimeout(() => {
-  const algorithm = new Algorithm(vertices);
-  console.log(algorithm.compute());
-}, 1000);
+const algorithm = new Algorithm(vertices);
+algorithm.start();
 
 /**
  * Tick
@@ -186,7 +184,10 @@ const tick = () => {
   if (currentSecond > lastSecond) {
     lastSecond = currentSecond;
 
-    // Algorithm.next();
+    if (!algorithm.done) {
+      console.log(algorithm.next());
+    }
+    debugger;
   }
 
   // Update objects

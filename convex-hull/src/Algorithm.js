@@ -10,6 +10,8 @@ export class Algorithm {
 
     // P
     this.convexHull = [];
+
+    this.generator = null;
   }
 
   #calculateLeftMostPoint(vertices) {
@@ -24,7 +26,31 @@ export class Algorithm {
     return leftMostPoint;
   }
 
-  compute() {
+  // Initialize the generator.
+  // Usage: const algorithm = new Algorithm(vertices).start();
+  start() {
+    this.generator = this.compute();
+    this.done = false;
+    return this.generator;
+  }
+
+  // Run algorithm to next iteration
+  next() {
+    return this.generator.next();
+  }
+
+  // Run algorithm to completion and returns the result
+  finish() {
+    let result;
+    while (!this.done) {
+      const { done, value } = this.generator.next();
+      this.done = done;
+      result = value;
+    }
+    return result;
+  }
+
+  *compute() {
     let i = 0;
     let currentBest;
     do {
@@ -47,6 +73,13 @@ export class Algorithm {
 
         const checkingIsBetter = currentBestVector.cross(checkingVector) > 0;
         // debugger;
+        yield {
+          convexHull: this.convexHull,
+          checking,
+          currentBest,
+          currentBestVector,
+          checkingVector,
+        };
 
         if (
           new THREE.Vector2(...currentBest).equals(
