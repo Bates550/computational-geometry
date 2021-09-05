@@ -146,7 +146,14 @@ const currentBestGuessLine = new THREE.Line(
 );
 scene.add(currentBestGuessLine);
 
-// const nextGuessLineMaterial = new THREE.LineBasicMaterial({ color: 0x00ff00 });
+// Next Guess Line
+const nextGuessLineMaterial = new THREE.LineBasicMaterial({ color: 0x00ff00 });
+const nextGuessLineGeometry = new THREE.BufferGeometry().setFromPoints([]);
+const nextGuessLine = new THREE.Line(
+  nextGuessLineGeometry,
+  nextGuessLineMaterial
+);
+scene.add(nextGuessLine);
 
 // /**
 //  * Lights
@@ -244,6 +251,12 @@ const tick = () => {
       currentBestGuessLine.geometry.setFromPoints([
         new THREE.Vector3(...currentPoint),
         new THREE.Vector3(...result.currentBest),
+      ]);
+
+      // Update next guess line
+      nextGuessLine.geometry.setFromPoints([
+        new THREE.Vector3(...currentPoint),
+        new THREE.Vector3(...result.checkingCopy.toArray()),
       ]);
 
       debugger;

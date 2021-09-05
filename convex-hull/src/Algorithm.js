@@ -56,6 +56,7 @@ export class Algorithm {
 
       for (let j = 0; j < this.vertices.length; ++j) {
         const checking = new THREE.Vector2(...this.vertices[j]);
+        const checkingCopy = new THREE.Vector2().copy(checking);
         const mostRecentConvexHullPoint = new THREE.Vector2(
           ...this.convexHull[this.convexHull.length - 1]
         );
@@ -68,6 +69,7 @@ export class Algorithm {
         const checkingIsBetter = currentBestVector.cross(checkingVector) > 0;
         // debugger;
         yield {
+          checkingCopy,
           convexHull: this.convexHull,
           checking,
           currentBest,
