@@ -3,7 +3,6 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import * as dat from "dat.gui";
 import { Algorithm } from "./Algorithm";
-import { generateUUID } from "three/src/math/MathUtils";
 
 window.THREE = THREE;
 
@@ -111,17 +110,43 @@ scene.add(axesHelper);
 
 // Placed Lines
 const placedLineMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 });
-const placedLineGeometry = new THREE.BufferGeometry().setFromPoints([
-  new THREE.Vector2(1, 1),
-  new THREE.Vector2(1, 4),
-]);
+
+// For some reason the drawing is not rendered when we update the geometry in the render loop unless we do some sort of initialization on the position attribute.
+// Either of these calls seem to work even though we're not actually initializing them with any point values
+
+// Option A
+// BufferGeometry#setAttribute
+const placedLineGeometry = new THREE.BufferGeometry();
+placedLineGeometry.setAttribute(
+  "position",
+  new THREE.BufferAttribute(new Float32Array(), 3)
+);
+
+// Option B
+// BufferGeometry#setFromPoints
+// This calls setAttribute under the hood. That seems to be the common theme.
+// https://github.com/mrdoob/three.js/blob/master/src/core/BufferGeometry.js#L282
+// const placedLineGeometry = new THREE.BufferGeometry().setFromPoints([]);
+
 const placedLine = new THREE.Line(placedLineGeometry, placedLineMaterial);
 scene.add(placedLine);
 
+// Current Best Guess Line
 const currentBestGuessLineMaterial = new THREE.LineBasicMaterial({
-  color: 0x000000,
+  // Need a non-black background for black line to work
+  // color: 0x000000,
+  color: 0xffffff,
 });
-const nextGuessLineMaterial = new THREE.LineBasicMaterial({ color: 0x00ff00 });
+const currentBestGuessLineGeometry = new THREE.BufferGeometry().setFromPoints(
+  []
+);
+const currentBestGuessLine = new THREE.Line(
+  currentBestGuessLineGeometry,
+  currentBestGuessLineMaterial
+);
+scene.add(currentBestGuessLine);
+
+// const nextGuessLineMaterial = new THREE.LineBasicMaterial({ color: 0x00ff00 });
 
 // /**
 //  * Lights
@@ -208,12 +233,19 @@ const tick = () => {
     if (!algorithm.done) {
       const result = algorithm.next();
 
+      // Update placed line
       const points = result.convexHull.map(
         (point) => new THREE.Vector3(...point)
       );
       placedLine.geometry.setFromPoints(points);
 
-      // placedLine.geometry.attributes.position.needsUpdate = true;
+      // Update current best guess line
+      const currentPoint = result.convexHull[result.convexHull.length - 1];
+      currentBestGuessLine.geometry.setFromPoints([
+        new THREE.Vector3(...currentPoint),
+        new THREE.Vector3(...result.currentBest),
+      ]);
+
       debugger;
       console.log(placedLine);
     }
