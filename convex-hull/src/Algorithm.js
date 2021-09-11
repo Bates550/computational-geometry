@@ -56,25 +56,23 @@ export class Algorithm {
 
       for (let j = 0; j < this.vertices.length; ++j) {
         const checking = new THREE.Vector2(...this.vertices[j]);
-        const checkingCopy = new THREE.Vector2().copy(checking);
         const mostRecentConvexHullPoint = new THREE.Vector2(
           ...this.convexHull[this.convexHull.length - 1]
         );
 
-        const checkingVector = checking.sub(mostRecentConvexHullPoint);
+        // Make a copy to preserve the original checking vector.
+        const checkingVector = new THREE.Vector2().copy(checking);
+        checkingVector.sub(mostRecentConvexHullPoint);
         const currentBestVector = new THREE.Vector2(...currentBest).sub(
           mostRecentConvexHullPoint
         );
 
         const checkingIsBetter = currentBestVector.cross(checkingVector) > 0;
-        // debugger;
+
         yield {
-          checkingCopy,
           convexHull: this.convexHull,
-          checking,
+          checking: [...checking.toArray(), 0],
           currentBest,
-          currentBestVector,
-          checkingVector,
         };
 
         if (
@@ -87,7 +85,6 @@ export class Algorithm {
         }
       }
       i++;
-      // this.convexHull[i] = currentBest;
       this.leftMostPoint = currentBest;
     } while (
       !new THREE.Vector2(...currentBest).equals(

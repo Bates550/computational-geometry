@@ -256,11 +256,8 @@ const tick = () => {
       // Update next guess line
       nextGuessLine.geometry.setFromPoints([
         new THREE.Vector3(...currentPoint),
-        new THREE.Vector3(...result.checkingCopy.toArray()),
+        new THREE.Vector3(...result.checking),
       ]);
-
-      debugger;
-      console.log(placedLine);
     }
   }
 
