@@ -30,7 +30,15 @@ export class Algorithm {
 
   // Run algorithm to next iteration
   next() {
-    return this.generator.next().value;
+    if (this.done) {
+      throw new Error(
+        "Algorithm.next called on a finished Algorithm. Check Algorithm.done before calling next."
+      );
+    }
+
+    const { value, done } = this.generator.next();
+    this.done = done;
+    return value;
   }
 
   // Run algorithm to completion and returns the result
@@ -71,7 +79,7 @@ export class Algorithm {
 
         yield {
           convexHull: this.convexHull,
-          checking: [...checking.toArray(), 0],
+          nextGuess: [...checking.toArray(), 0],
           currentBest,
         };
 
@@ -92,6 +100,10 @@ export class Algorithm {
       )
     );
 
-    return this.convexHull;
+    return {
+      convexHull: this.convexHull,
+      nextGuess: null,
+      currentBest: null,
+    };
   }
 }

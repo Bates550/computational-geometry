@@ -46,9 +46,11 @@ const textureLoader = new THREE.TextureLoader(textureManager);
  */
 const settings = {
   rotationSpeed: 1,
+  algorithmSpeed: 20,
 };
 
 gui.add(settings, "rotationSpeed").min(0).max(150).step(1);
+gui.add(settings, "algorithmSpeed").min(0).max(30).step(1);
 
 /**
  * Base
@@ -233,31 +235,44 @@ const tick = () => {
   const elapsedTime = clock.getElapsedTime();
 
   // Update objects
-  const currentSecond = Math.trunc(elapsedTime * 3);
+  const currentSecond = Math.trunc(elapsedTime * settings.algorithmSpeed);
   if (currentSecond > lastSecond) {
     lastSecond = currentSecond;
 
     if (!algorithm.done) {
       const result = algorithm.next();
+      const currentPoint = result.convexHull[result.convexHull.length - 1];
 
       // Update placed line
       const points = result.convexHull.map(
         (point) => new THREE.Vector3(...point)
       );
+      // If we're on the last iteration, add the first point on the convex hull
+      // to the end so we get a closed line.
+      if (algorithm.done) {
+        points.push(new THREE.Vector3(...result.convexHull[0]));
+      }
       placedLine.geometry.setFromPoints(points);
 
       // Update current best guess line
-      const currentPoint = result.convexHull[result.convexHull.length - 1];
-      currentBestGuessLine.geometry.setFromPoints([
-        new THREE.Vector3(...currentPoint),
-        new THREE.Vector3(...result.currentBest),
-      ]);
+      if (result.currentBest) {
+        currentBestGuessLine.geometry.setFromPoints([
+          new THREE.Vector3(...currentPoint),
+          new THREE.Vector3(...result.currentBest),
+        ]);
+      } else {
+        currentBestGuessLine.geometry.setFromPoints([]);
+      }
 
       // Update next guess line
-      nextGuessLine.geometry.setFromPoints([
-        new THREE.Vector3(...currentPoint),
-        new THREE.Vector3(...result.checking),
-      ]);
+      if (result.nextGuess) {
+        nextGuessLine.geometry.setFromPoints([
+          new THREE.Vector3(...currentPoint),
+          new THREE.Vector3(...result.nextGuess),
+        ]);
+      } else {
+        nextGuessLine.geometry.setFromPoints([]);
+      }
     }
   }
 
