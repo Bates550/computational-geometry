@@ -46,11 +46,11 @@ const textureLoader = new THREE.TextureLoader(textureManager);
  */
 const settings = {
   rotationSpeed: 1,
-  algorithmSpeed: 20,
+  algorithmSpeed: 50,
 };
 
 gui.add(settings, "rotationSpeed").min(0).max(150).step(1);
-gui.add(settings, "algorithmSpeed").min(0).max(30).step(1);
+gui.add(settings, "algorithmSpeed").min(0).max(100).step(1);
 
 /**
  * Base
@@ -66,26 +66,28 @@ const scene = new THREE.Scene();
  */
 
 // prettier-ignore
-const vertices = [
-  // On the convex hull
-  [7, 3, 0],
-  [3, 5, 0],
-  [2, 4, 0],
-  [2, 1, 0],
-  [1, 1, 0],
-  // Not on the convex hull
-  [4, 4, 0],
-  [3, 3, 0],
-  [3, 4, 0],
-];
+// const vertices = [
+//   // On the convex hull
+//   [7, 3, 0],
+//   [3, 5, 0],
+//   [2, 4, 0],
+//   [2, 1, 0],
+//   [1, 1, 0],
+//   // Not on the convex hull
+//   [4, 4, 0],
+//   [3, 3, 0],
+//   [3, 4, 0],
+// ];
 
-// const vertices = [];
-// for (let i = 0; i < 10; i++) {
-//   const x = THREE.MathUtils.randFloatSpread(5);
-//   const y = THREE.MathUtils.randFloatSpread(5);
-//   const z = 0;
-//   vertices.push([x, y, z]);
-// }
+const NUM_LINES = 200
+
+const vertices = [];
+for (let i = 0; i < NUM_LINES; i++) {
+  const x = THREE.MathUtils.randFloatSpread(5);
+  const y = THREE.MathUtils.randFloatSpread(5);
+  const z = 0;
+  vertices.push([x, y, z]);
+}
 
 const geometry = new THREE.BufferGeometry();
 geometry.setAttribute(
@@ -193,8 +195,8 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   100
 );
-camera.position.x = 4;
-camera.position.y = 4;
+camera.position.x = 0;
+camera.position.y = 0;
 camera.position.z = 8;
 
 gui.add(camera.position, "x").min(0).max(20).step(0.1);
@@ -206,7 +208,7 @@ scene.add(camera);
 // Controls
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
-controls.target = new THREE.Vector3(4, 4, 0);
+// controls.target = new THREE.Vector3(4, 4, 0);
 
 /**
  * Renderer

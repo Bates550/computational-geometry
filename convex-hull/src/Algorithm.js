@@ -56,8 +56,10 @@ export class Algorithm {
     let i = 0;
     let currentBest;
     do {
-      if (i >= 6) {
-        return null;
+      if (i > this.vertices.length ** 2 + 1) {
+        throw new Error(
+          "Too many iterations? Stopping execution to preventing potential infinite loop."
+        );
       }
       this.convexHull[i] = this.leftMostPoint;
       currentBest = this.vertices[0];
