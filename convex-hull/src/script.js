@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import * as dat from "dat.gui";
 import { Algorithm } from "./Algorithm";
+import hotkeys from "hotkeys-js";
 
 window.THREE = THREE;
 
@@ -47,10 +48,12 @@ const textureLoader = new THREE.TextureLoader(textureManager);
 const settings = {
   rotationSpeed: 1,
   algorithmSpeed: 50,
+  paused: false,
 };
 
 gui.add(settings, "rotationSpeed").min(0).max(150).step(1);
 gui.add(settings, "algorithmSpeed").min(0).max(100).step(1);
+gui.add(settings, "paused");
 
 /**
  * Base
@@ -230,18 +233,33 @@ const clock = new THREE.Clock();
 const algorithm = new Algorithm(vertices);
 
 /**
+ * Keyboard
+ */
+hotkeys("space", () => {
+  settings.paused = !settings.paused;
+});
+
+hotkeys("right", () => {
+  // next?
+});
+
+/**
  * Tick
  */
 let lastSecond = 0;
 const tick = () => {
   const elapsedTime = clock.getElapsedTime();
 
-  // Update objects
+  /**
+   * Update objects
+   */
+
+  // Update Algorithm
   const currentSecond = Math.trunc(elapsedTime * settings.algorithmSpeed);
   if (currentSecond > lastSecond) {
     lastSecond = currentSecond;
 
-    if (!algorithm.done) {
+    if (!algorithm.done && !settings.paused) {
       const result = algorithm.next();
       const currentPoint = result.convexHull[result.convexHull.length - 1];
 

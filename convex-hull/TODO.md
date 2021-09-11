@@ -1,10 +1,11 @@
 ## TODO
 
-- [ ] Add pause and next with keyboard
+- [ ] Add next with keyboard
 - [ ] Publish to github pages
 
 ## DONE
 
+- [x] Add pause with keyboard
 - [x] Fix crash on algorithm finish
 - [x] Make yielded rendering output of a consistent type
   - THREE.Vector3? { x, y, z }? [x, y, z]?
