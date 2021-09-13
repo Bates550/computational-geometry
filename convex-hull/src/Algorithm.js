@@ -13,7 +13,10 @@ export class Algorithm {
 
     // Initialize the generator
     this.generator = this.compute();
+
     this.done = false;
+    this.steps = [];
+    this.currentStep = null;
   }
 
   #calculateLeftMostPoint(vertices) {
@@ -28,6 +31,10 @@ export class Algorithm {
     return leftMostPoint;
   }
 
+  get latestStep() {
+    return this.steps[this.currentStep];
+  }
+
   // Run algorithm to next iteration
   next() {
     if (this.done) {
@@ -37,6 +44,8 @@ export class Algorithm {
     }
 
     const { value, done } = this.generator.next();
+    this.steps.push(value);
+    this.currentStep = this.currentStep === null ? 0 : this.currentStep + 1;
     this.done = done;
     return value;
   }
@@ -45,9 +54,10 @@ export class Algorithm {
   finish() {
     let result;
     while (!this.done) {
-      const { done, value } = this.generator.next();
-      this.done = done;
-      result = value;
+      // const { done, value } = this.generator.next();
+      // this.done = done;
+      // result = value;
+      result = this.next();
     }
     return result;
   }

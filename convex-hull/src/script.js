@@ -47,8 +47,9 @@ const textureLoader = new THREE.TextureLoader(textureManager);
  */
 const settings = {
   rotationSpeed: 1,
-  algorithmSpeed: 50,
-  paused: false,
+  algorithmSpeed: 20,
+  paused: true,
+  stepsQueued: false,
 };
 
 gui.add(settings, "rotationSpeed").min(0).max(150).step(1);
@@ -82,7 +83,7 @@ const scene = new THREE.Scene();
 //   [3, 4, 0],
 // ];
 
-const NUM_LINES = 200
+const NUM_LINES = 10
 
 const vertices = [];
 for (let i = 0; i < NUM_LINES; i++) {
@@ -232,15 +233,60 @@ const clock = new THREE.Clock();
  */
 const algorithm = new Algorithm(vertices);
 
+const drawAlgorithm = ({ step, done }) => {
+  const currentPoint = step.convexHull[step.convexHull.length - 1];
+
+  // Update placed line
+  const points = step.convexHull.map((point) => new THREE.Vector3(...point));
+  // If we're on the last iteration, add the first point on the convex hull
+  // to the end so we get a closed line.
+  if (done) {
+    points.push(new THREE.Vector3(...step.convexHull[0]));
+  }
+  placedLine.geometry.setFromPoints(points);
+
+  // Update current best guess line
+  if (step.currentBest) {
+    currentBestGuessLine.geometry.setFromPoints([
+      new THREE.Vector3(...currentPoint),
+      new THREE.Vector3(...step.currentBest),
+    ]);
+  } else {
+    currentBestGuessLine.geometry.setFromPoints([]);
+  }
+
+  // Update next guess line
+  if (step.nextGuess) {
+    nextGuessLine.geometry.setFromPoints([
+      new THREE.Vector3(...currentPoint),
+      new THREE.Vector3(...step.nextGuess),
+    ]);
+  } else {
+    nextGuessLine.geometry.setFromPoints([]);
+  }
+};
+
 /**
  * Keyboard
  */
 hotkeys("space", () => {
+  console.log("space");
   settings.paused = !settings.paused;
 });
 
 hotkeys("right", () => {
   // next?
+  console.log("right");
+  if (!algorithm.done) {
+    algorithm.next();
+    settings.stepsQueued = true;
+  }
+});
+
+hotkeys("left", () => {
+  // previous?
+  console.log("left");
+  // algorithm.previous();
 });
 
 /**
@@ -260,40 +306,16 @@ const tick = () => {
     lastSecond = currentSecond;
 
     if (!algorithm.done && !settings.paused) {
-      const result = algorithm.next();
-      const currentPoint = result.convexHull[result.convexHull.length - 1];
+      const step = algorithm.next();
 
-      // Update placed line
-      const points = result.convexHull.map(
-        (point) => new THREE.Vector3(...point)
-      );
-      // If we're on the last iteration, add the first point on the convex hull
-      // to the end so we get a closed line.
-      if (algorithm.done) {
-        points.push(new THREE.Vector3(...result.convexHull[0]));
-      }
-      placedLine.geometry.setFromPoints(points);
-
-      // Update current best guess line
-      if (result.currentBest) {
-        currentBestGuessLine.geometry.setFromPoints([
-          new THREE.Vector3(...currentPoint),
-          new THREE.Vector3(...result.currentBest),
-        ]);
-      } else {
-        currentBestGuessLine.geometry.setFromPoints([]);
-      }
-
-      // Update next guess line
-      if (result.nextGuess) {
-        nextGuessLine.geometry.setFromPoints([
-          new THREE.Vector3(...currentPoint),
-          new THREE.Vector3(...result.nextGuess),
-        ]);
-      } else {
-        nextGuessLine.geometry.setFromPoints([]);
-      }
+      drawAlgorithm({ step, done: algorithm.done });
     }
+  }
+
+  if (settings.stepsQueued) {
+    settings.stepsQueued = false;
+
+    drawAlgorithm({ step: algorithm.latestStep, done: algorithm.done });
   }
 
   // Update controls
