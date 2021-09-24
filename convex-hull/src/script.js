@@ -286,7 +286,9 @@ hotkeys("right", () => {
 hotkeys("left", () => {
   // previous?
   console.log("left");
-  // algorithm.previous();
+  algorithm.previous();
+
+  settings.stepsQueued = true;
 });
 
 /**
@@ -315,7 +317,7 @@ const tick = () => {
   if (settings.stepsQueued) {
     settings.stepsQueued = false;
 
-    drawAlgorithm({ step: algorithm.latestStep, done: algorithm.done });
+    drawAlgorithm({ step: algorithm.currentStep, done: algorithm.done });
   }
 
   // Update controls

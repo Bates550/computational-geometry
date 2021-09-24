@@ -8,15 +8,12 @@ export class Algorithm {
     // P[0]
     this.leftMostPoint = this.#calculateLeftMostPoint(this.vertices);
 
-    // P
-    this.convexHull = [];
-
     // Initialize the generator
     this.generator = this.compute();
 
     this.done = false;
     this.steps = [];
-    this.currentStep = null;
+    this.currentStepIndex = null;
   }
 
   #calculateLeftMostPoint(vertices) {
@@ -31,8 +28,8 @@ export class Algorithm {
     return leftMostPoint;
   }
 
-  get latestStep() {
-    return this.steps[this.currentStep];
+  get currentStep() {
+    return this.steps[this.currentStepIndex];
   }
 
   // Run algorithm to next iteration
@@ -45,9 +42,24 @@ export class Algorithm {
 
     const { value, done } = this.generator.next();
     this.steps.push(value);
-    this.currentStep = this.currentStep === null ? 0 : this.currentStep + 1;
+    this.currentStepIndex =
+      this.currentStepIndex === null ? 0 : this.currentStepIndex + 1;
     this.done = done;
     return value;
+  }
+
+  previous() {
+    if (this.currentStepIndex === null) {
+      throw new Error("Algorithm.previous called on an unstarted Algorithm.");
+    }
+
+    if (this.currentStepIndex === 0) {
+      throw new Error(
+        "Algorithm.previous called when already at the beginning. Check Algorithm.currentStepIndex."
+      );
+    }
+
+    this.currentStepIndex -= 1;
   }
 
   // Run algorithm to completion and returns the result
@@ -65,19 +77,20 @@ export class Algorithm {
   *compute() {
     let i = 0;
     let currentBest;
+    let convexHull = [];
     do {
       if (i > this.vertices.length ** 2 + 1) {
         throw new Error(
           "Too many iterations? Stopping execution to preventing potential infinite loop."
         );
       }
-      this.convexHull[i] = this.leftMostPoint;
+      convexHull[i] = this.leftMostPoint;
       currentBest = this.vertices[0];
 
       for (let j = 0; j < this.vertices.length; ++j) {
         const checking = new THREE.Vector2(...this.vertices[j]);
         const mostRecentConvexHullPoint = new THREE.Vector2(
-          ...this.convexHull[this.convexHull.length - 1]
+          ...convexHull[convexHull.length - 1]
         );
 
         // Make a copy to preserve the original checking vector.
@@ -90,7 +103,8 @@ export class Algorithm {
         const checkingIsBetter = currentBestVector.cross(checkingVector) > 0;
 
         yield {
-          convexHull: this.convexHull,
+          // Calling convexHull.slice to get a new copy in our steps
+          convexHull: convexHull.slice(),
           nextGuess: [...checking.toArray(), 0],
           currentBest,
         };
@@ -108,12 +122,12 @@ export class Algorithm {
       this.leftMostPoint = currentBest;
     } while (
       !new THREE.Vector2(...currentBest).equals(
-        new THREE.Vector2(...this.convexHull[0])
+        new THREE.Vector2(convexHull[0])
       )
     );
 
     return {
-      convexHull: this.convexHull,
+      convexHull,
       nextGuess: null,
       currentBest: null,
     };
