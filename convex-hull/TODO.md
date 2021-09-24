@@ -1,10 +1,12 @@
 ## TODO
 
-- [ ] Add next with keyboard
+- [ ] When paused and on a previous iteration via arrows, unpausing should start at the current iteration instead of latest
 - [ ] Publish to github pages
 
 ## DONE
 
+- [x] Add previous with keyboard
+- [x] Add next with keyboard
 - [x] Add pause with keyboard
 - [x] Fix crash on algorithm finish
 - [x] Make yielded rendering output of a consistent type
