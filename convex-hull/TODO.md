@@ -14,3 +14,24 @@
   - Went with [x, y, z] because it was simple and more on the agnostic side
 - [x] Get gift-wrapping algorithm working with yields
 - [x] Get gift-wrapping algorithm working without the yields
+
+## NOTES
+
+mostRecentConvexHullPoint = [7, 3]
+currentBest = [4, 4]
+firstCheck = [3, 5]
+secondCheck = [2, 4]
+
+### First Check
+
+checkedVector = firstCheck - mostRecentConvexHullPoint = [-4, 2]
+currentBestVector = currentBest - mostRecentConvexHullPoint = [-3, 1]
+
+currentBestVector X checkedVector < 0
+
+### Second Check
+
+checkedVector = secondCheck - mostRecentConvexHullPoint = [-5, 1]
+currentBestVector = currentBest - mostRecentConvexHullPoint = [-3, 1]
+
+currentBestVector X checkedVector > 0
